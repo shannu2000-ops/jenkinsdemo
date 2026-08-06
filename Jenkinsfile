@@ -1,30 +1,65 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'ap-south-1'
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out code...'
+                git branch: 'main',
+                    url: 'https://github.com/your-username/terraform-project.git'
             }
         }
 
-        stage('Build') {
+        stage('Terraform Init') {
             steps {
-                echo 'Building application...'
+                sh 'terraform init'
             }
         }
 
-        stage('Test') {
+        stage('Terraform Validate') {
             steps {
-                echo 'Running tests...'
+                sh 'terraform validate'
             }
         }
 
-        stage('Deploy') {
+        stage('Terraform Format Check') {
             steps {
-                echo 'Deploying application...'
+                sh 'terraform fmt -check'
             }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Do you want to apply the Terraform changes?'
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline execution completed.'
+        }
+
+        success {
+            echo 'Terraform deployment successful.'
+        }
+
+        failure {
+            echo 'Terraform deployment failed.'
         }
     }
 }
