@@ -1,18 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_REGION = 'ap-south-1'
-    }
-
     stages {
-
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/your-username/terraform-project.git'
-            }
-        }
 
         stage('Terraform Init') {
             steps {
@@ -26,40 +15,17 @@ pipeline {
             }
         }
 
-        stage('Terraform Format Check') {
-            steps {
-                sh 'terraform fmt -check'
-            }
-        }
-
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan -out=tfplan'
+                sh 'terraform plan'
             }
         }
 
         stage('Terraform Apply') {
-            when {
-                branch 'main'
-            }
             steps {
-                input message: 'Do you want to apply the Terraform changes?'
-                sh 'terraform apply -auto-approve tfplan'
+                input "Apply Terraform?"
+                sh 'terraform apply -auto-approve'
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline execution completed.'
-        }
-
-        success {
-            echo 'Terraform deployment successful.'
-        }
-
-        failure {
-            echo 'Terraform deployment failed.'
         }
     }
 }
