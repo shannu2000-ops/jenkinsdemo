@@ -1,11 +1,3 @@
-variable "aws_region" {
-  type = string
-}
-
-variable "ami_id" {
-  type = string
-}
-
-variable "instance_type" {
-  default = "t2.micro"
-}
+aws_region    = "ap-south-1"
+ami_id        = "ami-0f918f7e67a3323f0"
+instance_type = "t2.micro"
